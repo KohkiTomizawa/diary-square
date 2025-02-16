@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+.postSubmitForm{
+  display: inline-block
+}
+
+.notAllowedSubmitButton{
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.allowedSubmitButton{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.attention{
+  color:red;
+}
+
+.noSpin::-webkit-inner-spin-button,
+.noSpin::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    -moz-appearance:textfield;
+}
+
+.txt{
+    display: inline-block;
+    width: 200px;
+}

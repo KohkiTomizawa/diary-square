@@ -1,0 +1,71 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>だいすくログイン</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<h1>だいすく ～diary square～</h1>
+<h2>ログイン</h2>
+<form action="login" method="post" id="form" value="${loginUser}" />
+<h3>ユーザーIDまたはメールアドレス</h3>
+<input type="text" name="userIdOrEmail" id="userIdOrEmail" maxlength="30"><br />
+(半角英数および記号)<br />
+<h3>パスワード</h3>
+<input type="password" name="pwd" id="pwd" maxlength="20" />
+<button type="button" id="displayToggleButton">表示する</button><br />
+(半角の英字と数字の組み合わせ8～20桁)<br />
+<input type="button" value="ログイン" id="submitButton" class="notAllowedSubmitButton" /><br />
+初めてご利用の方は<a href="register.jsp">アカウント新規登録</a>をお願いします
+</form>
+<script>
+const userIdOrEmail = document.getElementById('userIdOrEmail');
+const pwd = document.getElementById('pwd');
+const form = document.getElementById('form');
+const submitButton = document.getElementById('submitButton');
+const displayToggleButton = document.getElementById('displayToggleButton');
+
+// すでにログインしている場合は、MainServlet経由でメイン画面へ遷移する
+//window.addEventListener('load', function() {
+//  let loginUser = form.getAttribute('value');
+//  if (loginUser !== null) {
+//    window.location.href('Main');
+//  }
+//});
+
+// すべてのフォームに入力されているとき、ログインボタンを有効にする
+// 有効/無効の切り替えはcssに実装
+form.addEventListener('input', function() {
+  if (userIdOrEmail.value == '' || pwd.value == '') {
+    submitButton.className = 'notAllowedSubmitButton';
+  } else {
+    submitButton.className = 'allowedSubmitButton';
+  }
+});
+
+// ログインボタン押下時に送信を行う(送信先はformタグに記述)
+submitButton.addEventListener('click', function() {
+  form.requestSubmit();
+});
+
+// 表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
+// 同時にボタンの表記を表示←→非表示に変化させる
+displayToggleButton.addEventListener('click', function() {
+  switch (pwd.type) {
+    case 'password':
+      pwd.type = 'text';
+      displayToggleButton.innerHTML = '表示しない'
+      break;
+    case 'text':
+      pwd.type = 'password';
+      displayToggleButton.innerHTML = '表示する'
+      break;
+    default:
+  }
+});
+</script>
+</body>
+</html>
