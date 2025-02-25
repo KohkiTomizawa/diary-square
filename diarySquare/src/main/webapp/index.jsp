@@ -28,14 +28,6 @@ const form = document.getElementById('form');
 const submitButton = document.getElementById('submitButton');
 const displayToggleButton = document.getElementById('displayToggleButton');
 
-// すでにログインしている場合は、MainServlet経由でメイン画面へ遷移する
-//window.addEventListener('load', function() {
-//  let loginUser = form.getAttribute('value');
-//  if (loginUser !== null) {
-//    window.location.href('Main');
-//  }
-//});
-
 // すべてのフォームに入力されているとき、ログインボタンを有効にする
 // 有効/無効の切り替えはcssに実装
 form.addEventListener('input', function() {
