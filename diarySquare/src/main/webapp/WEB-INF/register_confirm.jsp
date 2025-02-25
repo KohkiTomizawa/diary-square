@@ -23,9 +23,9 @@
 <p id="dob" value="${registerUser.dob}"></p>
 <h4>性別</h4>
 <p id="sex" value="${registerUser.sex}"></p>
-<form style="display: inline-block" action="register" method="post" id="formCorrect" class="inlineForm">
-  <input type="hidden" name="state" value="correct" />
-  <input type="button" value="修正する" id="correctButton">
+<form style="display: inline-block" action="register" method="post" id="formModify" class="inlineForm">
+  <input type="hidden" name="state" value="modify" />
+  <input type="button" value="修正する" id="modifyButton">
 </form>
 <form style="display: inline-block" action="register" method="post" id="formExecute" class="inlineForm">
   <input type="hidden" name="state" value="execute" />
@@ -35,7 +35,7 @@
 const pwd = document.getElementById('pwd');
 const dob = document.getElementById('dob');
 const sex = document.getElementById('sex');
-const correctButton = document.getElementById('correctButton');
+const modifyButton = document.getElementById('modifyButton');
 const executeButton = document.getElementById('executeButton');
 
 // ページ読み込み時にパスワード、生年月日、性別を変換して表示する。
@@ -69,8 +69,8 @@ window.addEventListener('load', function() {
 });
 
 //修正ボタン押下時に、登録画面へ遷移。
-correctButton.addEventListener('click', function() {
-formCorrect.requestSubmit();
+modifyButton.addEventListener('click', function() {
+  formModify.requestSubmit();
 });
 
 // 登録ボタン押下時に、登録を実行。

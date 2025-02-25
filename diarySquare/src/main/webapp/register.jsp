@@ -12,7 +12,7 @@
 <h2>アカウント新規登録</h2>
 <h3>会員情報</h3>
 <h4>＊：必須項目</h4>
-<p id="differentEmailAttention" class="attention">&nbsp;</p>
+<p id="checkedEmailAttention" class="attention">&nbsp;</p>
 <form action="register" method="post" id="form" value="${state}">
 <input type="hidden" name="state" value="confirm" />
 <h4>メールアドレス *</h4>
@@ -67,7 +67,7 @@
 <script>
 const sex = document.getElementById('sex');
 const sexList = document.getElementsByName('sex');
-const differentEmailAttention = document.getElementById('differentEmailAttention');
+const checkedEmailAttention = document.getElementById('checkedEmailAttention');
 const form = document.getElementById('form');
 const email = document.getElementById('email');
 const emailConfirm = document.getElementById('emailConfirm');
@@ -109,17 +109,26 @@ window.addEventListener('load', function() {
   }
 });
 
-// セッションスコープ内の登録ユーザーBeanのstateがdifferent/incorrectの場合、
-// ページ読み込み時に各フォームの初期値をチェックしフラグ管理する
-// differentの場合は、さらに注意文を追加する
+// セッションスコープ内の登録ユーザーBeanのstateがdifferent/registerd/incorrectの場合、
+// ページ読み込み時に各フォームの初期値をチェックしフラグ管理する(registerdの場合はEメールアドレスを除く)
+// different/registerdの場合は、さらに注意文を追加する
 // 上記以外の場合は、各フォームの初期値(value)を空にする
 window.addEventListener('load', function() {
-  if (form.getAttribute('value') == 'different' || form.getAttribute('value') == 'incorrect') {
-    if (form.getAttribute('value') == 'different') {
-      differentEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
+  if (form.getAttribute('value') === 'different'
+      || form.getAttribute('value') === 'incorrect') {
+    if (form.getAttribute('value') === 'different') {
+      checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
     }
     emailCheck();
     emailConfirmCheck();
+    userIdCheck();
+    userNameCheck();
+    dobCheck();
+  } else if (form.getAttribute('value') === 'registerd') {
+    checkedEmailAttention.innerHTML = email.getAttribute('value') +
+        'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
+    email.setAttribute('value', '');
+    emailConfirm.setAttribute('value', '');
     userIdCheck();
     userNameCheck();
     dobCheck();
@@ -137,7 +146,7 @@ window.addEventListener('load', function() {
 // (submitFlags == 0b111111)
 // 有効/無効の切り替えはcssにより実装
 form.addEventListener('input', function() {
-  if (submitFlags == 0b111111) {
+  if (submitFlags === 0b111111) {
     submitButton.className = 'allowedSubmitButton';
   } else {
     submitButton.className = 'notAllowedSubmitButton';
@@ -148,7 +157,7 @@ form.addEventListener('input', function() {
 // *のフォームの場合は、正規表現を満たしたらフラグを立て、未入力および正規表現を満たさなかったらフラグを折る
 // *のないフォームの場合は、未入力および正規表現を満たしたらフラグを立て、正規表現を満たさなかったらフラグを折る
 function emailCheck() {
-  if (email.value == '') {
+  if (email.value === '') {
     emailAttention.innerHTML = 'メールアドレスを入力してください。';
     submitFlags &= (~0b000001);
   } else if (!email.value.match(/^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/)) {
@@ -163,7 +172,7 @@ email.addEventListener('focusout', emailCheck);
 email.addEventListener('input', emailCheck);
 
 function emailConfirmCheck() {
-  if (emailConfirm.value == '') {
+  if (emailConfirm.value === '') {
     emailConfirmAttention.innerHTML = 'メールアドレスを入力してください。';
     submitFlags &= (~0b000010);
   } else if (!emailConfirm.value.match(/^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/)) {
@@ -178,7 +187,7 @@ emailConfirm.addEventListener('focusout', emailConfirmCheck);
 emailConfirm.addEventListener('input', emailConfirmCheck);
 
 function userIdCheck() {
-  if (userId.value == '') {
+  if (userId.value === '') {
     userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
     submitFlags &= (~0b000100);
   } else if (!userId.value.match(/^[a-zA-Z0-9]+$/)) {
@@ -193,7 +202,7 @@ userId.addEventListener('focusout',userIdCheck);
 userId.addEventListener('input',userIdCheck);
 
 function userNameCheck() {
-  if (userName.value == '') {
+  if (userName.value === '') {
     userNameAttention.innerHTML = 'ユーザー名を入力してください。';
     submitFlags &= (~0b001000);
   } else if (!userName.value.match(/^[^<>&"']+$/)) {
