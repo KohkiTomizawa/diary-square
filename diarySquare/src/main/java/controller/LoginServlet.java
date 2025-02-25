@@ -48,7 +48,7 @@ public class LoginServlet extends HttpServlet {
             System.out.println(loginUser.getInternalUserId());
             request.getRequestDispatcher("Main").forward(request, response);
         } else {
-            request.getRequestDispatcher("WEB-INF/jsp/login_faild.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/login_faild.jsp").forward(request, response);
         }
         
     }
