@@ -1,9 +1,8 @@
 package controller;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -39,6 +38,8 @@ public class RegisterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String state = request.getParameter("state");
         HttpSession session = request.getSession();
+        RequestDispatcher dispatcher = null;
+        RegisterLogic registerLogic = new RegisterLogic();
 
         if (state == null) {
             session.removeAttribute("registerUser");
@@ -48,8 +49,14 @@ public class RegisterServlet extends HttpServlet {
         
         switch (state) {
         /**
-         * メールアドレスの一致/不一致を判定し、一致したら登録情報確認画面へ遷移、
-         * 不一致なら登録画面へ遷移
+         * Eメールアドレスの未登録/登録済み、および一致/不一致を判定し、
+         * 未登録かつ一致なら登録情報確認画面へ遷移、それ以外なら登録画面へ遷移
+         * なお、登録済みなら一致/不一致の判定をせずに遷移
+         * 
+         * @SessionScope "state" ->
+         *   "registerd"：Eメールアドレスが登録済みの場合
+         *   "different"：Eメールアドレスが未登録かつ不一致の場合
+         *   "correct"：Eメールアドレスが未登録かつ一致の場合
          */
         case "confirm":
             RegisterUserBean registerUser = new RegisterUserBean();
@@ -62,22 +69,20 @@ public class RegisterServlet extends HttpServlet {
             registerUser.setDob(StringUtil.exchangeXSS(request.getParameter("dob")));
             registerUser.setSex(request.getParameter("sex"));
             
-            if (registerUser.getEmail().equals(registerUser.getEmailConfirm())) {
-                session.setAttribute("state", "same");
-                session.setAttribute("registerUser", registerUser);
-                request.getRequestDispatcher("WEB-INF/register_confirm.jsp").forward(request, response);
-            } else {
-                session.setAttribute("state", "different");
-                session.setAttribute("registerUser", registerUser);
-                request.getRequestDispatcher("register.jsp").forward(request, response);
-            }
+            dispatcher = registerLogic.emailCheck(registerUser, request, session);
+            
+            session.setAttribute("registerUser", registerUser);
+            dispatcher.forward(request, response);
             break;
         /**
          * 登録情報を修正するために登録画面へ遷移
          * セッションスコープの登録ユーザーBeanが空の場合は、
          * セッションスコープを削除して登録画面へ遷移
+         * 
+         * @SessionScope "state" ->
+         *   "incorrect"：修正ボタンが押された場合
          */
-        case "correct":
+        case "modify":
             registerUser = (RegisterUserBean)session.getAttribute("registerUser");
             if (registerUser != null) {
                 session.setAttribute("state", "incorrect");
@@ -95,24 +100,19 @@ public class RegisterServlet extends HttpServlet {
         case "execute":
             registerUser = (RegisterUserBean)session.getAttribute("registerUser");
             if (registerUser == null) {
-                request.getRequestDispatcher("register_faild.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/register_faild.jsp").forward(request, response);
                 return;
             }
             
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            registerUser.setRegistrationDate(sdf.format(date));
-            
-            RegisterLogic registerLogic = new RegisterLogic();
             String errMsg = null;
             
             errMsg = registerLogic.register(registerUser);
             session.invalidate();
             
             if (errMsg == null) {
-                request.getRequestDispatcher("register_success.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/register_success.jsp").forward(request, response);
             } else {
-                request.getRequestDispatcher("register_faild.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/register_faild.jsp").forward(request, response);
             }
             break;
         /*
