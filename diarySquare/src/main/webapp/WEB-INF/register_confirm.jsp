@@ -35,8 +35,6 @@
 const pwd = document.getElementById('pwd');
 const dob = document.getElementById('dob');
 const sex = document.getElementById('sex');
-const modifyButton = document.getElementById('modifyButton');
-const executeButton = document.getElementById('executeButton');
 
 // ページ読み込み時にパスワード、生年月日、性別を変換して表示する。
 window.addEventListener('load', function() {
@@ -68,10 +66,14 @@ window.addEventListener('load', function() {
   }
 });
 
+const modifyButton = document.getElementById('modifyButton');
+
 //修正ボタン押下時に、登録画面へ遷移。
 modifyButton.addEventListener('click', function() {
   formModify.requestSubmit();
 });
+
+const executeButton = document.getElementById('executeButton');
 
 // 登録ボタン押下時に、登録を実行。
 executeButton.addEventListener('click', function() {

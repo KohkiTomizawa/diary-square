@@ -65,97 +65,16 @@
 <input type="button" value="確認画面へ" id="submitButton" class="notAllowedSubmitButton">
 </form>
 <script>
-const sex = document.getElementById('sex');
-const sexList = document.getElementsByName('sex');
-const checkedEmailAttention = document.getElementById('checkedEmailAttention');
-const form = document.getElementById('form');
-const email = document.getElementById('email');
-const emailConfirm = document.getElementById('emailConfirm');
-const userId = document.getElementById('userId');
-const userName = document.getElementById('userName');
-const pwd = document.getElementById('pwd');
-const dob = document.getElementById('dob');
-const emailAttention = document.getElementById('emailAttention');
-const emailConfirmAttention = document.getElementById('emailConfirmAttention');
-const userIdAttention = document.getElementById('userIdAttention');
-const userNameAttention = document.getElementById('userNameAttention');
-const pwdAttention = document.getElementById('pwdAttention');
-const dobAttention = document.getElementById('dobAttention');
-const submitButton = document.getElementById('submitButton');
-const displayToggleButton = document.getElementById('displayToggleButton');
-
-// すべてのフォームが正規表現を満たしているかどうか、ビット演算にて管理するためのフラグ
-// 生年月日は未入力可のため初期値でフラグを立てておく
+//すべてのフォームが正規表現を満たしているかどうか、ビット演算にて管理するためのフラグ
+//生年月日は未入力可のため初期値でフラグを立てておく
 let submitFlags = 0b100000;
-
-// ページ読み込み時に登録ユーザーBeanのsexの値を取得し、
-// 該当する性別ラジオボタンのcheckedを設定する(初期値は「回答しない」)
-window.addEventListener('load', function() {
-  switch (sex.getAttribute('value')) {
-    case '1':
-      sexList[0].checked = true;
-      break;
-    case '2':
-      sexList[1].checked = true;
-      break;
-    case '9':
-      sexList[2].checked = true;
-      break;
-    case '0':
-      sexList[3].checked = true;
-      break;
-    default:
-      sexList[3].checked = true;
-  }
-});
-
-// セッションスコープ内の登録ユーザーBeanのstateがdifferent/registerd/incorrectの場合、
-// ページ読み込み時に各フォームの初期値をチェックしフラグ管理する(registerdの場合はEメールアドレスを除く)
-// different/registerdの場合は、さらに注意文を追加する
-// 上記以外の場合は、各フォームの初期値(value)を空にする
-window.addEventListener('load', function() {
-  if (form.getAttribute('value') === 'different'
-      || form.getAttribute('value') === 'incorrect') {
-    if (form.getAttribute('value') === 'different') {
-      checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
-    }
-    emailCheck();
-    emailConfirmCheck();
-    userIdCheck();
-    userNameCheck();
-    dobCheck();
-  } else if (form.getAttribute('value') === 'registerd') {
-    checkedEmailAttention.innerHTML = email.getAttribute('value') +
-        'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
-    email.setAttribute('value', '');
-    emailConfirm.setAttribute('value', '');
-    userIdCheck();
-    userNameCheck();
-    dobCheck();
-  } else {
-    email.setAttribute('value', '');
-    emailConfirm.setAttribute('value', '');
-    userId.setAttribute('value', '');
-    userName.setAttribute('value', '');
-    dob.setAttribute('value', '');
-    sexList[3].checked = true;
-  }
-});
-
-// すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
-// (submitFlags == 0b111111)
-// 有効/無効の切り替えはcssにより実装
-form.addEventListener('input', function() {
-  if (submitFlags === 0b111111) {
-    submitButton.className = 'allowedSubmitButton';
-  } else {
-    submitButton.className = 'notAllowedSubmitButton';
-  }
-});
 
 // 各フォームの未入力および正規表現をチェックし、フォーム下に注意文を追加する
 // *のフォームの場合は、正規表現を満たしたらフラグを立て、未入力および正規表現を満たさなかったらフラグを折る
 // *のないフォームの場合は、未入力および正規表現を満たしたらフラグを立て、正規表現を満たさなかったらフラグを折る
+const email = document.getElementById('email');
+const emailAttention = document.getElementById('emailAttention');
+
 function emailCheck() {
   if (email.value === '') {
     emailAttention.innerHTML = 'メールアドレスを入力してください。';
@@ -170,6 +89,9 @@ function emailCheck() {
 }
 email.addEventListener('focusout', emailCheck);
 email.addEventListener('input', emailCheck);
+
+const emailConfirm = document.getElementById('emailConfirm');
+const emailConfirmAttention = document.getElementById('emailConfirmAttention');
 
 function emailConfirmCheck() {
   if (emailConfirm.value === '') {
@@ -186,6 +108,9 @@ function emailConfirmCheck() {
 emailConfirm.addEventListener('focusout', emailConfirmCheck);
 emailConfirm.addEventListener('input', emailConfirmCheck);
 
+const userId = document.getElementById('userId');
+const userIdAttention = document.getElementById('userIdAttention');
+
 function userIdCheck() {
   if (userId.value === '') {
     userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
@@ -201,6 +126,9 @@ function userIdCheck() {
 userId.addEventListener('focusout',userIdCheck);
 userId.addEventListener('input',userIdCheck);
 
+const userName = document.getElementById('userName');
+const userNameAttention = document.getElementById('userNameAttention');
+
 function userNameCheck() {
   if (userName.value === '') {
     userNameAttention.innerHTML = 'ユーザー名を入力してください。';
@@ -215,6 +143,9 @@ function userNameCheck() {
 }
 userName.addEventListener('focusout', userNameCheck);
 userName.addEventListener('input', userNameCheck);
+
+const pwd = document.getElementById('pwd');
+const pwdAttention = document.getElementById('pwdAttention');
 
 function pwdCheck() {
   if (pwd.value === '') {
@@ -236,6 +167,9 @@ function pwdCheck() {
 }
 pwd.addEventListener('focusout', pwdCheck);
 pwd.addEventListener('input', pwdCheck);
+
+const dob = document.getElementById('dob');
+const dobAttention = document.getElementById('dobAttention');
 
 function dobCheck() {
   let slicedDob = dob.value.slice(0, 8);
@@ -315,24 +249,99 @@ function dobCheck() {
 }
 dob.addEventListener('input', dobCheck);
 
+const displayToggleButton = document.getElementById('displayToggleButton');
+
+//表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
+//同時にボタンの表記を表示←→非表示に変化させる
+displayToggleButton.addEventListener('click', function(){
+switch(pwd.type){
+ case 'password':
+   pwd.type = 'text';
+   displayToggleButton.innerHTML = '表示しない'
+   break;
+ case 'text':
+   pwd.type = 'password';
+   displayToggleButton.innerHTML = '表示する'
+   break;
+ default:
+}
+});
+
+const submitButton = document.getElementById('submitButton');
+
+//すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
+//(submitFlags == 0b111111)
+//有効/無効の切り替えはcssにより実装
+form.addEventListener('input', function() {
+if (submitFlags === 0b111111) {
+ submitButton.className = 'allowedSubmitButton';
+} else {
+ submitButton.className = 'notAllowedSubmitButton';
+}
+});
+
 // ログインボタン押下時に送信を行う(送信先はformタグに記述)
 submitButton.addEventListener('click', function(){
   form.requestSubmit();
 });
 
-// 表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
-// 同時にボタンの表記を表示←→非表示に変化させる
-displayToggleButton.addEventListener('click', function(){
-  switch(pwd.type){
-    case 'password':
-      pwd.type = 'text';
-      displayToggleButton.innerHTML = '表示しない'
+const sex = document.getElementById('sex');
+const sexList = document.getElementsByName('sex');
+
+// ページ読み込み時に登録ユーザーBeanのsexの値を取得し、
+// 該当する性別ラジオボタンのcheckedを設定する(初期値は「回答しない」)
+window.addEventListener('load', function() {
+  switch (sex.getAttribute('value')) {
+    case '1':
+      sexList[0].checked = true;
       break;
-    case 'text':
-      pwd.type = 'password';
-      displayToggleButton.innerHTML = '表示する'
+    case '2':
+      sexList[1].checked = true;
+      break;
+    case '9':
+      sexList[2].checked = true;
+      break;
+    case '0':
+      sexList[3].checked = true;
       break;
     default:
+      sexList[3].checked = true;
+  }
+});
+
+const form = document.getElementById('form');
+const checkedEmailAttention = document.getElementById('checkedEmailAttention');
+
+// セッションスコープ内の登録ユーザーBeanのstateがdifferent/registerd/incorrectの場合、
+// ページ読み込み時に各フォームの初期値をチェックしフラグ管理する(registerdの場合はEメールアドレスを除く)
+// different/registerdの場合は、さらに注意文を追加する
+// 上記以外の場合は、各フォームの初期値(value)を空にする
+window.addEventListener('load', function() {
+  if (form.getAttribute('value') === 'different'
+      || form.getAttribute('value') === 'incorrect') {
+    if (form.getAttribute('value') === 'different') {
+      checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
+    }
+    emailCheck();
+    emailConfirmCheck();
+    userIdCheck();
+    userNameCheck();
+    dobCheck();
+  } else if (form.getAttribute('value') === 'registerd') {
+    checkedEmailAttention.innerHTML = email.getAttribute('value') +
+        'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
+    email.setAttribute('value', '');
+    emailConfirm.setAttribute('value', '');
+    userIdCheck();
+    userNameCheck();
+    dobCheck();
+  } else {
+    email.setAttribute('value', '');
+    emailConfirm.setAttribute('value', '');
+    userId.setAttribute('value', '');
+    userName.setAttribute('value', '');
+    dob.setAttribute('value', '');
+    sexList[3].checked = true;
   }
 });
 </script>
