@@ -10,9 +10,9 @@
 <body>
 <h1>だいすく ～diary square～</h1>
 <h2>ログイン</h2>
-<form action="login" method="post" id="form" />
+<form action="login" method="post" id="form">
 <h3>ユーザーIDまたはメールアドレス</h3>
-<input type="text" name="userIdOrEmail" id="userIdOrEmail" maxlength="30"><br />
+<input type="text" name="userIdOrEmail" id="userIdOrEmail" maxlength="30" /><br />
 (半角英数および記号)<br />
 <h3>パスワード</h3>
 <input type="password" name="pwd" id="pwd" maxlength="20" />

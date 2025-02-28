@@ -1,0 +1,5 @@
+2025/03/01
+~\diary-square\diarySquare\build\classesに.gitignoreが自動生成されていた問題について
+→eclipse「ウィンドウ」タブ＞「設定」＞「バージョン管理(チーム)」＞「Git」＞「プロジェクト」の
+　「派生しているリソースを自動的に.gitignoreに加えることにより無視」にチェックが入っていたため
+→チェックを外し、生成されていた.gitignoreを削除した
