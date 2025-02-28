@@ -39,7 +39,7 @@
 ◇大きな変更履歴  
 
 - 2025/03/01  
-  ~\diary-square\diarySquare\build\classesに.gitignoreが自動生成されていた問題について対処した  
+  ~\diary-square\diarySquare\build\classesに.gitignoreが自動生成されることで稀にmerge conflictが発生する問題について対処した  
   → eclipse「ウィンドウ」タブ＞「設定」＞「バージョン管理(チーム)」＞「Git」＞「プロジェクト」の「派生しているリソースを自動的に.gitignoreに加えることにより無視」にチェックが入っていたことが原因であったため、チェックを外し生成されていた.gitignoreを削除した
   
 ◇今後の実装予定機能  
