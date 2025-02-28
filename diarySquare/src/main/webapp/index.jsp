@@ -10,7 +10,7 @@
 <body>
 <h1>だいすく ～diary square～</h1>
 <h2>ログイン</h2>
-<form action="login" method="post" id="form" value="${loginUser}" />
+<form action="login" method="post" id="form" />
 <h3>ユーザーIDまたはメールアドレス</h3>
 <input type="text" name="userIdOrEmail" id="userIdOrEmail" maxlength="30"><br />
 (半角英数および記号)<br />
@@ -22,16 +22,15 @@
 初めてご利用の方は<a href="register.jsp">アカウント新規登録</a>をお願いします
 </form>
 <script>
+const form = document.getElementById('form');
 const userIdOrEmail = document.getElementById('userIdOrEmail');
 const pwd = document.getElementById('pwd');
-const form = document.getElementById('form');
 const submitButton = document.getElementById('submitButton');
-const displayToggleButton = document.getElementById('displayToggleButton');
 
 // すべてのフォームに入力されているとき、ログインボタンを有効にする
 // 有効/無効の切り替えはcssに実装
 form.addEventListener('input', function() {
-  if (userIdOrEmail.value == '' || pwd.value == '') {
+  if (userIdOrEmail.value === '' || pwd.value === '') {
     submitButton.className = 'notAllowedSubmitButton';
   } else {
     submitButton.className = 'allowedSubmitButton';
@@ -42,6 +41,8 @@ form.addEventListener('input', function() {
 submitButton.addEventListener('click', function() {
   form.requestSubmit();
 });
+
+const displayToggleButton = document.getElementById('displayToggleButton');
 
 // 表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
 // 同時にボタンの表記を表示←→非表示に変化させる
