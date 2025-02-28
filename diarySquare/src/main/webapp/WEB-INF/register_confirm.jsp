@@ -23,11 +23,11 @@
 <p id="dob" value="${registerUser.dob}"></p>
 <h4>性別</h4>
 <p id="sex" value="${registerUser.sex}"></p>
-<form style="display: inline-block" action="register" method="post" id="formModify" class="inlineForm">
+<form action="register" method="post" id="formModify"  class="inlineForm">
   <input type="hidden" name="state" value="modify" />
   <input type="button" value="修正する" id="modifyButton">
 </form>
-<form style="display: inline-block" action="register" method="post" id="formExecute" class="inlineForm">
+<form action="register" method="post" id="formExecute" class="inlineForm">
   <input type="hidden" name="state" value="execute" />
   <input type="button" value="登録する" id="executeButton">
 </form>
@@ -68,7 +68,7 @@ window.addEventListener('load', function() {
 
 const modifyButton = document.getElementById('modifyButton');
 
-//修正ボタン押下時に、登録画面へ遷移。
+// 修正ボタン押下時に、登録画面へ遷移。
 modifyButton.addEventListener('click', function() {
   formModify.requestSubmit();
 });

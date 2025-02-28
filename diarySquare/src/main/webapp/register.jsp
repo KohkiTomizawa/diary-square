@@ -39,8 +39,7 @@
 20文字以内で入力してください。<br />
 以下の記号は使用できません。 &lt; &gt; &amp; &quot; &#39;
 <h4>パスワード *</h4>
-<input type="password" name="pwd" id="pwd" class="txt" pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,20}$"
-       maxlength="20" placeholder="パスワードを入力してください。" />
+<input type="password" name="pwd" id="pwd" class="txt" maxlength="20" placeholder="パスワードを入力してください。" />
 <button type="button" id="displayToggleButton">表示する</button>
 <p id="pwdAttention" class="attention">&nbsp;</p>
 半角の英字と数字の組み合わせで、8文字以上20文字以内で入力してください。<br />
@@ -267,6 +266,7 @@ switch(pwd.type){
 }
 });
 
+const form = document.getElementById('form');
 const submitButton = document.getElementById('submitButton');
 
 //すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
@@ -309,7 +309,6 @@ window.addEventListener('load', function() {
   }
 });
 
-const form = document.getElementById('form');
 const checkedEmailAttention = document.getElementById('checkedEmailAttention');
 
 // セッションスコープ内の登録ユーザーBeanのstateがdifferent/registerd/incorrectの場合、
@@ -317,8 +316,7 @@ const checkedEmailAttention = document.getElementById('checkedEmailAttention');
 // different/registerdの場合は、さらに注意文を追加する
 // 上記以外の場合は、各フォームの初期値(value)を空にする
 window.addEventListener('load', function() {
-  if (form.getAttribute('value') === 'different'
-      || form.getAttribute('value') === 'incorrect') {
+  if (form.getAttribute('value') === 'different' || form.getAttribute('value') === 'incorrect') {
     if (form.getAttribute('value') === 'different') {
       checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
     }
