@@ -21,28 +21,34 @@ public class RegisterLogic {
      * 未登録の場合は、確認用Eメールアドレスと一致/不一致か判定する
      * 
      * @param registerUser 登録ユーザーBean
-     * @param unregisterdEmail Eメールアドレスが未登録かどうかの真偽値(未登録のとき：true)
+     * @param emailCheckResult Eメールアドレスが未登録かどうかの確認結果 ->
+     *   "error"：チェックが正常に行えなかった場合
+     *   "registerd"：登録済みの場合
+     *   "unregisterd"：未登録の場合
      * @return dispatcher 遷移先アドレスを指定
      */
     public RequestDispatcher emailCheck(RegisterUserBean registerUser, HttpServletRequest request, HttpSession session) {
         RequestDispatcher dispatcher = null;
         RegisterDao registerDao = new RegisterDao();
-        boolean unregisterdEmail = false;
+        String emailCheckResult = null;
         
-        unregisterdEmail = registerDao.unregisterdEmailCheck(registerUser);
+        emailCheckResult = registerDao.unregisterdEmailCheck(registerUser);
         
-        if (!unregisterdEmail) {
-            /** 登録済み(unregisterdEmail = false)のとき */
+        if (emailCheckResult.equals("registerd")) {
+            /** 登録済みのとき */
             session.setAttribute("state", "registerd");
             dispatcher = request.getRequestDispatcher("register.jsp");
-            
+        } else if (emailCheckResult.equals("error")) {
+            /** チェックが正常に行えなかったとき */
+            session.setAttribute("state", "error");
+            dispatcher = request.getRequestDispatcher("register.jsp");
         } else if (!registerUser.getEmail().equals(registerUser.getEmailConfirm())) {
-            /** 未登録(unregisterdEmail = true)かつ確認用Eメールアドレスが一致しないとき */
+            /** 未登録かつ確認用Eメールアドレスが一致しないとき */
             session.setAttribute("state", "different");
             dispatcher = request.getRequestDispatcher("register.jsp");
             
         } else {
-            /** 未登録(unregisterdEmail = true)かつ確認用Eメールアドレスが一致するとき */
+            /** 未登録かつ確認用Eメールアドレスが一致するとき */
             session.setAttribute("state", "correct");
             dispatcher = request.getRequestDispatcher("WEB-INF/register_confirm.jsp");
         }
