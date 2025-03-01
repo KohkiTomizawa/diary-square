@@ -311,35 +311,51 @@ window.addEventListener('load', function() {
 
 const checkedEmailAttention = document.getElementById('checkedEmailAttention');
 
-// セッションスコープ内の登録ユーザーBeanのstateがdifferent/registerd/incorrectの場合、
+// セッションスコープ内の登録ユーザーBeanのstateがregisterd/error/different/incorrectの場合、
 // ページ読み込み時に各フォームの初期値をチェックしフラグ管理する(registerdの場合はEメールアドレスを除く)
-// different/registerdの場合は、さらに注意文を追加する
+// registerd/error/differentの場合は、さらに注意文を追加する
 // 上記以外の場合は、各フォームの初期値(value)を空にする
 window.addEventListener('load', function() {
-  if (form.getAttribute('value') === 'different' || form.getAttribute('value') === 'incorrect') {
-    if (form.getAttribute('value') === 'different') {
+  switch (form.getAttribute('value')) {
+    case 'registerd':
+      checkedEmailAttention.innerHTML = email.getAttribute('value') +
+          'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
+      email.setAttribute('value', '');
+      emailConfirm.setAttribute('value', '');
+      userIdCheck();
+      userNameCheck();
+      dobCheck();
+      break;
+    case 'error':
+      checkedEmailAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、時間をおいて再度お試しください。';
+      emailCheck();
+      emailConfirmCheck();
+      userIdCheck();
+      userNameCheck();
+      dobCheck();
+      break;
+    case 'different':
       checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
-    }
-    emailCheck();
-    emailConfirmCheck();
-    userIdCheck();
-    userNameCheck();
-    dobCheck();
-  } else if (form.getAttribute('value') === 'registerd') {
-    checkedEmailAttention.innerHTML = email.getAttribute('value') +
-        'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
-    email.setAttribute('value', '');
-    emailConfirm.setAttribute('value', '');
-    userIdCheck();
-    userNameCheck();
-    dobCheck();
-  } else {
-    email.setAttribute('value', '');
-    emailConfirm.setAttribute('value', '');
-    userId.setAttribute('value', '');
-    userName.setAttribute('value', '');
-    dob.setAttribute('value', '');
-    sexList[3].checked = true;
+      emailCheck();
+      emailConfirmCheck();
+      userIdCheck();
+      userNameCheck();
+      dobCheck();
+      break;
+    case 'incorrect':
+      emailCheck();
+      emailConfirmCheck();
+      userIdCheck();
+      userNameCheck();
+      dobCheck();
+      break;
+    default:
+      email.setAttribute('value', '');
+      emailConfirm.setAttribute('value', '');
+      userId.setAttribute('value', '');
+      userName.setAttribute('value', '');
+      dob.setAttribute('value', '');
+      sexList[3].checked = true;
   }
 });
 </script>

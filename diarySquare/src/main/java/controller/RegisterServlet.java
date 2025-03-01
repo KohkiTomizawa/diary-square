@@ -55,6 +55,7 @@ public class RegisterServlet extends HttpServlet {
          * 
          * @SessionScope "state" ->
          *   "registerd"：Eメールアドレスが登録済みの場合
+         *   "error"：Eメールアドレスが未登録かどうかの確認が正常に行えなかった場合
          *   "different"：Eメールアドレスが未登録かつ不一致の場合
          *   "correct"：Eメールアドレスが未登録かつ一致の場合
          */
