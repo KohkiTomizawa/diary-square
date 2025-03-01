@@ -16,9 +16,12 @@ public class RegisterDao extends BaseDao {
      * 新規登録用Eメールアドレスがデータベースに登録済みかどうか確認する
      * 
      * @param registerUser 登録ユーザーの情報を格納したBean
-     * @return 真偽値(未登録のとき、true)
+     * @return Eメールアドレスの登録状態 ->
+     *   "error"：チェックが正常に行えなかった場合
+     *   "registerd"：登録済みの場合
+     *   "unregisterd"：未登録の場合
      */
-    public boolean unregisterdEmailCheck (RegisterUserBean registerUser) {
+    public String unregisterdEmailCheck (RegisterUserBean registerUser) {
         String email = null;
         
         String strSql = "SELECT email FROM users WHERE email=?";
@@ -39,16 +42,16 @@ public class RegisterDao extends BaseDao {
                 }
                 
                 if (email != null) {
-                    return false;
+                    return "registerd";
                 }
             }
             
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
-            return false;
+            return "error";
         }
             
-        return true;
+        return "unregisterd";
     }
 
     /**
