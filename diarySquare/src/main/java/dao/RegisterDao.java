@@ -38,7 +38,7 @@ public class RegisterDao extends BaseDao {
                 ResultSet rs = pstmt.executeQuery();
                 // 検索結果が1件でも、rs.getXxx()を動作させるためにrs.next()の記述が必要！
                 if (rs.next()) {
-                    result = rs.getString("email");
+                    result = rs.getString("id");
                 }
                 
                 if (result != null) {

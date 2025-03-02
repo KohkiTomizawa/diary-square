@@ -6,9 +6,7 @@
 <meta charset="UTF-8" />
 <title>だいすく新規アカウント登録</title>
 <link rel="stylesheet" href="css/style.css" />
-<!-- 
 <script src="http://localhost:8080/diarySquare/js/jquery-3.7.1.min.js"></script>
- -->
 </head>
 <body>
 <h1>だいすく ～diary square～</h1>
@@ -40,7 +38,7 @@
 <p id="userNameAttention" class="attention">&nbsp;</p>
 新規登録完了後にも変更できます。<br />
 20文字以内で入力してください。<br />
-以下の記号は使用できません。 &lt; &gt; &amp; &quot; &#39;
+以下の半角記号は使用できません。 &lt; &gt; &amp; &quot; &#39;
 <h4>パスワード *</h4>
 <input type="password" name="pwd" id="pwd" class="txt" maxlength="20" placeholder="パスワードを入力してください。" />
 <button type="button" id="displayToggleButton">表示する</button>
@@ -64,12 +62,51 @@
 <input type="radio" id="sex0" name="sex" value="0" />
   <label for="sex0">回答しない</label><br />
 あとから登録することも可能です。<br />
-<input type="button" value="確認画面へ" id="submitButton" class="notAllowedSubmitButton">
+<input type="button" value="確認画面へ" id="submitButton" class="notAllowedSubmitButton" />
 </form>
 <script>
+// 変数の変更に連動して第３引数の関数を実行する関数
+function watchValue(obj, propertyName, callback) {
+  let value = obj[propertyName];
+  Object.defineProperty(obj, propertyName, {
+    get: function() {
+      return value;
+    },
+    set: function(newValue) {
+      value = newValue;
+      callback(newValue);
+    }
+  });
+}
+
 // すべてのフォームが正規表現を満たしているかどうか、ビット演算にて管理するためのフラグ
 // 生年月日は未入力可のため初期値でフラグを立てておく
-let submitFlags = 0b100000;
+let submit = { flags: 0b100000 };
+
+const submitButton = document.getElementById('submitButton');
+
+// すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
+// 有効/無効の切り替えはcssにより実装
+
+// Ajax内だと、inputからflag変更まで時間がかかり、
+// flag変更前にチェックが実行されてしまうため、イベントリスナーは使用できない
+//form.addEventListener('input', function() {
+//  if (submitFlags === 0b111111) {
+//    submitButton.className = 'allowedSubmitButton';
+//  } else {
+//    submitButton.className = 'notAllowedSubmitButton';
+//  }
+//});
+
+// submit.flagsの変更(セッター実行)時に値をチェックし、
+// 「確認」ボタンの有効化/無効化を行う
+watchValue(submit, 'flags', function() {
+  if (submit.flags === 0b111111) {
+    submitButton.className = 'allowedSubmitButton';
+  } else {
+    submitButton.className = 'notAllowedSubmitButton';
+  }
+});
 
 // 各フォームの未入力および正規表現をチェックし、フォーム下に注意文を追加する
 // *のフォームの場合は、正規表現を満たしたらフラグを立て、未入力および正規表現を満たさなかったらフラグを折る
@@ -80,13 +117,13 @@ const emailAttention = document.getElementById('emailAttention');
 function emailCheck() {
   if (email.value === '') {
     emailAttention.innerHTML = 'メールアドレスを入力してください。';
-    submitFlags &= (~0b000001);
+    submit.flags &= (~0b000001);
   } else if (!email.value.match(/^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/)) {
     emailAttention.innerHTML = 'メールアドレスを正しく入力してください。';
-    submitFlags &= (~0b000001);
+    submit.flags &= (~0b000001);
   } else {
     emailAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b000001;
+    submit.flags |= 0b000001;
   }
 }
 email.addEventListener('focusout', emailCheck);
@@ -98,13 +135,13 @@ const emailConfirmAttention = document.getElementById('emailConfirmAttention');
 function emailConfirmCheck() {
   if (emailConfirm.value === '') {
     emailConfirmAttention.innerHTML = 'メールアドレスを入力してください。';
-    submitFlags &= (~0b000010);
+    submit.flags &= (~0b000010);
   } else if (!emailConfirm.value.match(/^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/)) {
     emailConfirmAttention.innerHTML = 'メールアドレスを正しく入力してください。';
-    submitFlags &= (~0b000010);
+    submit.flags &= (~0b000010);
   } else {
     emailConfirmAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b000010;
+    submit.flags |= 0b000010;
   }
 }
 emailConfirm.addEventListener('focusout', emailConfirmCheck);
@@ -116,7 +153,7 @@ const userIdAttention = document.getElementById('userIdAttention');
 function userIdCheck() {
   if (userId.value === '') {
     userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
-    submitFlags &= (~0b000100);
+    submit.flags &= (~0b000100);
   }
 }
 userId.addEventListener('focusout', userIdCheck);
@@ -135,72 +172,75 @@ function timerClear() {
 function userIdCheckAndAjax() {
   if (userId.value === '') {
     userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
-    submitFlags &= (~0b000100);
+    submit.flags &= (~0b000100);
     timerClear();
   } else if (!userId.value.match(/^[a-zA-Z0-9]+$/)) {
     userIdAttention.innerHTML = '半角英数字で入力してください。';
-    submitFlags &= (~0b000100);
+    submit.flags &= (~0b000100);
     timerClear();
   } else {
     userIdAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b000100;
     timerClear();
-    
-    // 非同期処理のメソッドは後述
-//    userIdCheckAjax();
+
+    // timerIdを生成し、指定時間(1000 ms)後に非同期処理を呼び出す
+    timerId = window.setTimeout(function() {
+        
+      // 非同期処理のメソッドは後述
+      userIdCheckAjax();
+      
+    }, 1000);
   }
 }
 userId.addEventListener('input', userIdCheckAndAjax);
 
-// inputから指定時間経過したら非同期処理によりデータベースと重複しているかチェックする
+// 非同期処理によりデータベースと重複しているかチェックする
 function userIdCheckAjax() {
 
-  // timerIdを生成し、指定時間(1000 ms)後に非同期処理を呼び出す
-  timerId = window.setTimeout(function() {
-    
-    // メッセージの文字色を変更するためにclassを変更し、メッセージを表示
-    userIdAttention.className = 'checking';
-    userIdAttention.innerHTML = userId.value + 'が登録済みか確認しています。'
+  // メッセージの文字色を変更するためにclassを変更し、メッセージを表示
+  userIdAttention.className = 'checking';
+  userIdAttention.innerHTML = userId.value + 'が登録済みか確認しています。'
 
-    // リクエストJSON
-    let request = {
-      userId : userId.value
-    };
+  // リクエストJSON
+  let request = {
+    userId : userId.value
+  };
 
-    // ajaxでservletにリクエストを送信
-    $.ajax({
-      type    : "GET",
-      url     : "register",
-      data    : request,
-//      dataType: "jsonp",
-      async   : true,
-      success : function(data) {
-        console.log(data["result"]);
-        switch (data["result"]) {
-          case 'error':
-            userIdAttention.className = 'attention';
-            userIdAttention.innerHTML = 'errorエラーが発生しました。<br />恐れ入りますが、入力し直してください。';
-            break;
-          case 'registerd':
-            userIdAttention.className = 'attention';
-            userIdAttention.innerHTML = userId.value +
-                'はすでに登録されています。<br />別のIDを入力してください。';
-            break;
-          case 'unregisterd':
-            userIdAttention.className = 'unregisterd';
-            userIdAttention.innerHTML = userId.value + 'は使用可能です。';
-            break;
-          default:
-            userIdAttention.className = 'attention';
-            userIdAttention.innerHTML = 'defaultエラーが発生しました。<br />恐れ入りますが、入力し直してください。';
-        }
-      },
-      error : function(XMLHttpRequest, textStatus, errorThrown) {
-        userIdAttention.className = 'attention';
-        userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+  // ajaxでservletにリクエストを送信
+  $.ajax({
+    type    : "GET",
+    url     : "register",
+    data    : request,
+    async   : true,
+    success : function(data) {
+      switch (data["result"]) {
+        case 'error':
+          userIdAttention.className = 'attention';
+          userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+          submit.flags &= (~0b000100);
+          break;
+        case 'registerd':
+          userIdAttention.className = 'attention';
+          userIdAttention.innerHTML = userId.value +
+              'はすでに登録されています。<br />別のIDを入力してください。';
+          submit.flags &= (~0b000100);
+          break;
+        case 'unregisterd':
+          userIdAttention.className = 'unregisterd';
+          userIdAttention.innerHTML = userId.value + 'は使用可能です。';
+          submit.flags |= 0b000100;
+          break;
+        default:
+          userIdAttention.className = 'attention';
+          userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+          submit.flags &= (~0b000100);
       }
-    }); 
-  }, 1000);
+    },
+    error : function(XMLHttpRequest, textStatus, errorThrown) {
+      userIdAttention.className = 'attention';
+      userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+      submit.flags &= (~0b000100);
+    }
+  });
 }
 
 const userName = document.getElementById('userName');
@@ -209,13 +249,13 @@ const userNameAttention = document.getElementById('userNameAttention');
 function userNameCheck() {
   if (userName.value === '') {
     userNameAttention.innerHTML = 'ユーザー名を入力してください。';
-    submitFlags &= (~0b001000);
+    submit.flags &= (~0b001000);
   } else if (!userName.value.match(/^[^<>&"']+$/)) {
     userNameAttention.innerHTML = '使用できない文字が含まれています。';
-    submitFlags &= (~0b001000);
+    submit.flags &= (~0b001000);
   } else {
     userNameAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b001000;
+    submit.flags |= 0b001000;
   }
 }
 userName.addEventListener('focusout', userNameCheck);
@@ -227,19 +267,19 @@ const pwdAttention = document.getElementById('pwdAttention');
 function pwdCheck() {
   if (pwd.value === '') {
     pwdAttention.innerHTML = 'パスワードを入力してください。';
-    submitFlags &= (~0b010000);
+    submit.flags &= (~0b010000);
   } else if (pwd.value.length < 8 || 20 < pwd.value.length) {
     pwdAttention.innerHTML = '8文字以上20文字以内で入力してください。'
-    submitFlags &= (~0b010000);
+    submit.flags &= (~0b010000);
   } else if (!pwd.value.match(/^[a-zA-Z0-9]+$/)) {
     pwdAttention.innerHTML = '半角英数字で入力してください。';
-    submitFlags &= (~0b010000);
+    submit.flags &= (~0b010000);
   } else if (!pwd.value.match(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/)) {
     pwdAttention.innerHTML = '半角英字と半角数字を両方使用してください。';
-    submitFlags &= (~0b010000);
+    submit.flags &= (~0b010000);
   } else {
     pwdAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b010000;
+    submit.flags |= 0b010000;
   }
 }
 pwd.addEventListener('focusout', pwdCheck);
@@ -254,10 +294,10 @@ function dobCheck() {
 
   if (slicedDob === '') {
     dobAttention.innerHTML = '&nbsp;';
-    submitFlags |= 0b100000;
+    submit.flags |= 0b100000;
   } else if (slicedDob.length < 8) {
     dobAttention.innerHTML = '生年月日の入力が未完了です。';
-    submitFlags &= (~0b100000);
+    submit.flags &= (~0b100000);
   } else {
     let yearOfBirth = Number(slicedDob.slice(0, 4));
     let monthOfBirth = Number(slicedDob.slice(4, 6));
@@ -267,10 +307,10 @@ function dobCheck() {
 
     if (yearOfBirth < 1900 || currentYear < yearOfBirth) {
       dobAttention.innerHTML = '正しい生年月日を入力してください。';
-      submitFlags &= (~0b100000);
+      submit.flags &= (~0b100000);
     } else if (12 < monthOfBirth) {
       dobAttention.innerHTML = '正しい生年月日を入力してください。';
-      submitFlags &= (~0b100000);
+      submit.flags &= (~0b100000);
     } else {
       switch (monthOfBirth) {
         case 1:
@@ -282,10 +322,10 @@ function dobCheck() {
         case 12:
           if (dayOfBirth < 1 || 31 < dayOfBirth) {
             dobAttention.innerHTML = '正しい生年月日を入力してください。';
-            submitFlags &= (~0b100000);
+            submit.flags &= (~0b100000);
           } else {
             dobAttention.innerHTML = '&nbsp;';
-            submitFlags |= 0b100000;
+            submit.flags |= 0b100000;
           }
           break;
         case 4:
@@ -294,28 +334,28 @@ function dobCheck() {
         case 11:
           if (dayOfBirth < 1 || 30 < dayOfBirth) {
             dobAttention.innerHTML = '正しい生年月日を入力してください。';
-            submitFlags &= (~0b100000);
+            submit.flags &= (~0b100000);
           } else {
             dobAttention.innerHTML = '&nbsp;';
-            submitFlags |= 0b100000;
+            submit.flags |= 0b100000;
           }
           break;
         case 2:
           if ((yearOfBirth % 4 === 0 && yearOfBirth % 100 !== 0) || yearOfBirth % 400 === 0) {
             if (dayOfBirth < 1 || 29 < dayOfBirth) {
               dobAttention.innerHTML = '正しい生年月日を入力してください。';
-              submitFlags &= (~0b100000);
+              submit.flags &= (~0b100000);
             } else {
               dobAttention.innerHTML = '&nbsp;';
-              submitFlags |= 0b100000;
+              submit.flags |= 0b100000;
             }
           } else {
             if (dayOfBirth < 1 || 28 < dayOfBirth) {
               dobAttention.innerHTML = '正しい生年月日を入力してください。';
-              submitFlags &= (~0b100000);
+              submit.flags &= (~0b100000);
             } else {
               dobAttention.innerHTML = '&nbsp;';
-              submitFlags |= 0b100000;
+              submit.flags |= 0b100000;
             }
           }
           break;
@@ -331,7 +371,7 @@ const displayToggleButton = document.getElementById('displayToggleButton');
 // 表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
 // 同時にボタンの表記を表示←→非表示に変化させる
 displayToggleButton.addEventListener('click', function(){
-  switch(pwd.type){
+  switch (pwd.type) {
     case 'password':
       pwd.type = 'text';
       displayToggleButton.innerHTML = '表示しない'
@@ -345,17 +385,6 @@ displayToggleButton.addEventListener('click', function(){
 });
 
 const form = document.getElementById('form');
-const submitButton = document.getElementById('submitButton');
-
-// すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
-// 有効/無効の切り替えはcssにより実装
-form.addEventListener('input', function() {
-  if (submitFlags === 0b111111) {
-    submitButton.className = 'allowedSubmitButton';
-  } else {
-    submitButton.className = 'notAllowedSubmitButton';
-  }
-});
 
 // ログインボタン押下時に送信を行う(送信先はformタグに記述)
 submitButton.addEventListener('click', function(){
@@ -399,7 +428,7 @@ window.addEventListener('load', function() {
           'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
       email.setAttribute('value', '');
       emailConfirm.setAttribute('value', '');
-      userIdCheck();
+      userIdCheckAndAjax();
       userNameCheck();
       dobCheck();
       break;
@@ -407,7 +436,7 @@ window.addEventListener('load', function() {
       checkedEmailAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、時間をおいて再度お試しください。';
       emailCheck();
       emailConfirmCheck();
-      userIdCheck();
+      userIdCheckAndAjax();
       userNameCheck();
       dobCheck();
       break;
@@ -415,14 +444,14 @@ window.addEventListener('load', function() {
       checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
       emailCheck();
       emailConfirmCheck();
-      userIdCheck();
+      userIdCheckAndAjax();
       userNameCheck();
       dobCheck();
       break;
     case 'incorrect':
       emailCheck();
       emailConfirmCheck();
-      userIdCheck();
+      userIdCheckAndAjax();
       userNameCheck();
       dobCheck();
       break;
