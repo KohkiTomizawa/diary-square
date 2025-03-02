@@ -18,6 +18,14 @@
   color:red;
 }
 
+.checking{
+  color:rgb(255, 128, 0);
+}
+
+.unregisterd{
+  color:rgb(0, 128, 0);
+}
+
 .noSpin::-webkit-inner-spin-button,
 .noSpin::-webkit-outer-spin-button {
     -webkit-appearance: none;

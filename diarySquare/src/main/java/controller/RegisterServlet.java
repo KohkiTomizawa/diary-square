@@ -1,6 +1,9 @@
 package controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,27 +13,50 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import model.RegisterLogic;
 import model.bean.RegisterUserBean;
 import util.StringUtil;
 
-/**
- * Servlet implementation class Login
- */
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+     * アカウント新規登録に関する非同期処理を行うメソッド
+     * 
+     * @param request   HTTPのリクエスト
+     * @param response  HTTPのレスポンス
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doPost(request, response);
+        try {
+            request.setCharacterEncoding("UTF-8");
+            String userId = request.getParameter("userId");
+            
+            RegisterLogic registerLogic = new RegisterLogic();
+            String strResult = registerLogic.userIdCheck(userId);
+            System.out.println(strResult);
+            
+            Map<String, String> mapResult = new HashMap<String, String>();
+            mapResult.put("result", strResult);
+            ObjectMapper mapper = new ObjectMapper();
+            String strJson = mapper.writeValueAsString(mapResult);
+            
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter pw = response.getWriter();
+            pw.print(strJson);
+            pw.close();
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * アカウント新規登録に関する処理を行うメソッド
      * セッションスコープ内の"state"の値によって処理を分岐する
+     * 
      * @param request   HTTPのリクエスト
      * @param response  HTTPのレスポンス
      */

@@ -6,6 +6,9 @@
 <meta charset="UTF-8" />
 <title>だいすく新規アカウント登録</title>
 <link rel="stylesheet" href="css/style.css" />
+<!-- 
+<script src="http://localhost:8080/diarySquare/js/jquery-3.7.1.min.js"></script>
+ -->
 </head>
 <body>
 <h1>だいすく ～diary square～</h1>
@@ -64,8 +67,8 @@
 <input type="button" value="確認画面へ" id="submitButton" class="notAllowedSubmitButton">
 </form>
 <script>
-//すべてのフォームが正規表現を満たしているかどうか、ビット演算にて管理するためのフラグ
-//生年月日は未入力可のため初期値でフラグを立てておく
+// すべてのフォームが正規表現を満たしているかどうか、ビット演算にて管理するためのフラグ
+// 生年月日は未入力可のため初期値でフラグを立てておく
 let submitFlags = 0b100000;
 
 // 各フォームの未入力および正規表現をチェックし、フォーム下に注意文を追加する
@@ -114,16 +117,91 @@ function userIdCheck() {
   if (userId.value === '') {
     userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
     submitFlags &= (~0b000100);
+  }
+}
+userId.addEventListener('focusout', userIdCheck);
+
+let timerId = null;
+
+// timerIdが空でければ、既存のtimerをキャンセルし、
+// classを"attention"にする
+function timerClear() {
+  if (timerId !== null) {
+    window.clearTimeout(timerId);
+    userIdAttention.className = 'attention';
+  }
+}
+
+function userIdCheckAndAjax() {
+  if (userId.value === '') {
+    userIdAttention.innerHTML = 'ユーザーIDを入力してください。';
+    submitFlags &= (~0b000100);
+    timerClear();
   } else if (!userId.value.match(/^[a-zA-Z0-9]+$/)) {
     userIdAttention.innerHTML = '半角英数字で入力してください。';
     submitFlags &= (~0b000100);
+    timerClear();
   } else {
     userIdAttention.innerHTML = '&nbsp;';
     submitFlags |= 0b000100;
+    timerClear();
+    
+    // 非同期処理のメソッドは後述
+//    userIdCheckAjax();
   }
 }
-userId.addEventListener('focusout',userIdCheck);
-userId.addEventListener('input',userIdCheck);
+userId.addEventListener('input', userIdCheckAndAjax);
+
+// inputから指定時間経過したら非同期処理によりデータベースと重複しているかチェックする
+function userIdCheckAjax() {
+
+  // timerIdを生成し、指定時間(1000 ms)後に非同期処理を呼び出す
+  timerId = window.setTimeout(function() {
+    
+    // メッセージの文字色を変更するためにclassを変更し、メッセージを表示
+    userIdAttention.className = 'checking';
+    userIdAttention.innerHTML = userId.value + 'が登録済みか確認しています。'
+
+    // リクエストJSON
+    let request = {
+      userId : userId.value
+    };
+
+    // ajaxでservletにリクエストを送信
+    $.ajax({
+      type    : "GET",
+      url     : "register",
+      data    : request,
+//      dataType: "jsonp",
+      async   : true,
+      success : function(data) {
+        console.log(data["result"]);
+        switch (data["result"]) {
+          case 'error':
+            userIdAttention.className = 'attention';
+            userIdAttention.innerHTML = 'errorエラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+            break;
+          case 'registerd':
+            userIdAttention.className = 'attention';
+            userIdAttention.innerHTML = userId.value +
+                'はすでに登録されています。<br />別のIDを入力してください。';
+            break;
+          case 'unregisterd':
+            userIdAttention.className = 'unregisterd';
+            userIdAttention.innerHTML = userId.value + 'は使用可能です。';
+            break;
+          default:
+            userIdAttention.className = 'attention';
+            userIdAttention.innerHTML = 'defaultエラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+        }
+      },
+      error : function(XMLHttpRequest, textStatus, errorThrown) {
+        userIdAttention.className = 'attention';
+        userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
+      }
+    }); 
+  }, 1000);
+}
 
 const userName = document.getElementById('userName');
 const userNameAttention = document.getElementById('userNameAttention');
@@ -250,34 +328,33 @@ dob.addEventListener('input', dobCheck);
 
 const displayToggleButton = document.getElementById('displayToggleButton');
 
-//表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
-//同時にボタンの表記を表示←→非表示に変化させる
+// 表示/非表示ボタン押下により、パスワード入力欄のtypeをpassword←→textに切り替える
+// 同時にボタンの表記を表示←→非表示に変化させる
 displayToggleButton.addEventListener('click', function(){
-switch(pwd.type){
- case 'password':
-   pwd.type = 'text';
-   displayToggleButton.innerHTML = '表示しない'
-   break;
- case 'text':
-   pwd.type = 'password';
-   displayToggleButton.innerHTML = '表示する'
-   break;
- default:
-}
+  switch(pwd.type){
+    case 'password':
+      pwd.type = 'text';
+      displayToggleButton.innerHTML = '表示しない'
+      break;
+    case 'text':
+      pwd.type = 'password';
+      displayToggleButton.innerHTML = '表示する'
+      break;
+    default:
+  }
 });
 
 const form = document.getElementById('form');
 const submitButton = document.getElementById('submitButton');
 
-//すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
-//(submitFlags == 0b111111)
-//有効/無効の切り替えはcssにより実装
+// すべてのフォームに正しい値が入力されているとき(*のないフォームは未入力も可)に送信ボタンを有効にする
+// 有効/無効の切り替えはcssにより実装
 form.addEventListener('input', function() {
-if (submitFlags === 0b111111) {
- submitButton.className = 'allowedSubmitButton';
-} else {
- submitButton.className = 'notAllowedSubmitButton';
-}
+  if (submitFlags === 0b111111) {
+    submitButton.className = 'allowedSubmitButton';
+  } else {
+    submitButton.className = 'notAllowedSubmitButton';
+  }
 });
 
 // ログインボタン押下時に送信を行う(送信先はformタグに記述)
