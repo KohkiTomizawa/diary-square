@@ -14,6 +14,25 @@ import model.bean.RegisterUserBean;
  * ユーザー新規登録のロジック
  */
 public class RegisterLogic {
+    /**
+     * 入力されたユーザーIDを元にregisterDaoにより、
+     * ユーザーIDが未登録/登録済みか判定
+     * 
+     * @param userId 入力されたユーザーID
+     * @param userIdCheckResult ユーザーIDが未登録かどうかの確認結果 ->
+     *   "error"：チェックが正常に行えなかった場合
+     *   "registerd"：登録済みの場合
+     *   "unregisterd"：未登録の場合
+     * @return userIdCheckResult 確認結果
+     */
+    public String userIdCheck(String userId) {
+        RegisterDao registerDao = new RegisterDao();
+        String userIdCheckResult = null;
+        
+        userIdCheckResult = registerDao.unregisterdUserIdCheck(userId);
+        
+        return userIdCheckResult;
+    }
     
     /**
      * 登録ユーザーBeanのEメールアドレスを元に画面遷移先を指定する
