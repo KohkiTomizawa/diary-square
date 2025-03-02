@@ -13,6 +13,48 @@ import model.bean.RegisterUserBean;
 public class RegisterDao extends BaseDao {
     
     /**
+     * 新規登録用ユーザーIDがデータベースに登録済みかどうか確認する
+     * 
+     * @param userId 入力されたユーザーID
+     * @return ユーザーIDの登録状態 ->
+     *   "error"：チェックが正常に行えなかった場合
+     *   "registerd"：登録済みの場合
+     *   "unregisterd"：未登録の場合
+     */
+    public String unregisterdUserIdCheck(String userId) {
+        String result = null;
+        
+        String strSql = "SELECT id FROM users WHERE id=?";
+
+        try {
+            load();
+            
+            // try-with-resources文のため、conn、pstmt、rsは自動で閉じられる
+            // (try-catch-finally文の場合は、finally句内でxxx.close()により閉じる必要がある)
+            try (Connection conn = open()) {
+                PreparedStatement pstmt = conn.prepareStatement(strSql);
+                pstmt.setString(1, userId);
+                
+                ResultSet rs = pstmt.executeQuery();
+                // 検索結果が1件でも、rs.getXxx()を動作させるためにrs.next()の記述が必要！
+                if (rs.next()) {
+                    result = rs.getString("id");
+                }
+                
+                if (result != null) {
+                    return "registerd";
+                }
+            }
+            
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            return "error";
+        }
+            
+        return "unregisterd";
+    }
+    
+    /**
      * 新規登録用Eメールアドレスがデータベースに登録済みかどうか確認する
      * 
      * @param registerUser 登録ユーザーの情報を格納したBean
@@ -21,7 +63,7 @@ public class RegisterDao extends BaseDao {
      *   "registerd"：登録済みの場合
      *   "unregisterd"：未登録の場合
      */
-    public String unregisterdEmailCheck (RegisterUserBean registerUser) {
+    public String unregisterdEmailCheck(RegisterUserBean registerUser) {
         String email = null;
         
         String strSql = "SELECT email FROM users WHERE email=?";
