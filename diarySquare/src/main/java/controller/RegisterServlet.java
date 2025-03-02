@@ -1,9 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -12,8 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import model.RegisterLogic;
 import model.bean.RegisterUserBean;
@@ -29,7 +24,7 @@ public class RegisterServlet extends HttpServlet {
      * @param request   HTTPのリクエスト
      * @param response  HTTPのレスポンス
      */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+/*    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             request.setCharacterEncoding("UTF-8");
             String userId = request.getParameter("userId");
@@ -52,7 +47,7 @@ public class RegisterServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
-
+*/
     /**
      * アカウント新規登録に関する処理を行うメソッド
      * セッションスコープ内の"state"の値によって処理を分岐する
