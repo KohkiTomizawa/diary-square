@@ -87,7 +87,7 @@ public class RegisterServlet extends HttpServlet {
         case "confirm":
             RegisterUserBean registerUser = new RegisterUserBean();
             registerUser.setEmail(StringUtil.exchangeXSS(request.getParameter("email")));
-            registerUser.setEmailConfirm(StringUtil.exchangeXSS(request.getParameter("emailConfirm")));
+            registerUser.setConfirmEmail(StringUtil.exchangeXSS(request.getParameter("confirmEmail")));
             registerUser.setUserId(StringUtil.exchangeXSS(request.getParameter("userId")));
             registerUser.setUserName(StringUtil.exchangeXSS(request.getParameter("userName")));
             registerUser.setPwd(StringUtil.exchangeXSS(request.getParameter("pwd")));

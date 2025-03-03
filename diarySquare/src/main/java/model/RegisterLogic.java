@@ -61,7 +61,7 @@ public class RegisterLogic {
             /** チェックが正常に行えなかったとき */
             session.setAttribute("state", "error");
             dispatcher = request.getRequestDispatcher("register.jsp");
-        } else if (!registerUser.getEmail().equals(registerUser.getEmailConfirm())) {
+        } else if (!registerUser.getEmail().equals(registerUser.getConfirmEmail())) {
             /** 未登録かつ確認用Eメールアドレスが一致しないとき */
             session.setAttribute("state", "different");
             dispatcher = request.getRequestDispatcher("register.jsp");
