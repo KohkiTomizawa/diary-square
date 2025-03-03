@@ -77,10 +77,6 @@ function addMultiEventListener(eventTarget, func, ...eventTypes) {
   //eventTarget.addEventListener(eventType, func);
 //});
 
-// そもそも、jQueryを使えば以下のようにeventTypeを併記するだけでよい
-// (今回は極力jQueryを用いずに記述したかったため未使用)
-//$(eventTarget).on('type1 type2', func);
-
 // プロパティの変更に連動して第３引数の関数を実行する関数
 function watchValue(obj, propertyName, callback) {
   let value = obj[propertyName];
