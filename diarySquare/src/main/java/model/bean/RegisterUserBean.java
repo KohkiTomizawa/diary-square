@@ -7,7 +7,7 @@ public class RegisterUserBean implements Serializable {
     /** Eメールアドレス */
     private String email;
     /** Eメールアドレス(確認用) */
-    private String emailConfirm;
+    private String confirmEmail;
     /** ユーザーID */
     private String userId;
     /** ユーザー名 */
@@ -51,18 +51,18 @@ public class RegisterUserBean implements Serializable {
 
     /**
      * Eメールアドレス(確認用)のゲッター
-     * @param emailConfirm Eメールアドレス(確認用)
+     * @param confirmEmail Eメールアドレス(確認用)
      */
-    public String getEmailConfirm() {
-        return emailConfirm;
+    public String getConfirmEmail() {
+        return confirmEmail;
     }
 
     /**
      * Eメールアドレス(確認用)のセッター
-     * @param emailConfirm Eメールアドレス(確認用)
+     * @param confirmEmail Eメールアドレス(確認用)
      */
-    public void setEmailConfirm(String emailConfirm) {
-        this.emailConfirm = emailConfirm;
+    public void setConfirmEmail(String confirmEmail) {
+        this.confirmEmail = confirmEmail;
     }
 
     /**
