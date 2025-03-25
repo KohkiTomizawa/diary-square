@@ -4,12 +4,12 @@
   display: inline-block
 }
 
-.notAllowedSubmitButton{
+.invalidSubmitButton{
   opacity: 0.5;
   pointer-events: none;
 }
 
-.allowedSubmitButton{
+.validSubmitButton{
   opacity: 1;
   pointer-events: auto;
 }
