@@ -32,20 +32,35 @@ public class RegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             request.setCharacterEncoding("UTF-8");
-            String userId = request.getParameter("userId");
+            String state = request.getParameter("state");
             
-            RegisterLogic registerLogic = new RegisterLogic();
-            String strResult = registerLogic.userIdCheck(userId);
-            
-            Map<String, String> mapResult = new HashMap<String, String>();
-            mapResult.put("result", strResult);
-            ObjectMapper mapper = new ObjectMapper();
-            String strJson = mapper.writeValueAsString(mapResult);
-            
-            response.setContentType("application/json;charset=UTF-8");
-            PrintWriter pw = response.getWriter();
-            pw.print(strJson);
-            pw.close();
+            switch (state) {
+            /**
+             * リクエストスコープのstateの値に応じて非同期処理を行う
+             * 
+             * @RequestScope "state" ->
+             *   "checkUserId"：入力されたユーザーIDがすでに登録されているかどうかを確認する
+             *   "beforeClose"：タブ及びウィンドウが閉じられた際にセッションスコープを破棄する
+             */
+            case "checkUserId":
+                String userId = request.getParameter("userId");
+                
+                RegisterLogic registerLogic = new RegisterLogic();
+                String strResult = registerLogic.userIdCheck(userId);
+                
+                Map<String, String> mapResult = new HashMap<String, String>();
+                mapResult.put("result", strResult);
+                ObjectMapper mapper = new ObjectMapper();
+                String strJson = mapper.writeValueAsString(mapResult);
+                
+                response.setContentType("application/json;charset=UTF-8");
+                PrintWriter pw = response.getWriter();
+                pw.print(strJson);
+                pw.close();
+                
+            case "beforeClose":
+                request.getSession().invalidate();
+            }
 
         } catch(Exception e) {
             e.printStackTrace();
