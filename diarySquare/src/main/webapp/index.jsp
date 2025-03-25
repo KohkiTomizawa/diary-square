@@ -18,7 +18,7 @@
 <input type="password" name="pwd" id="pwd" maxlength="20" />
 <button type="button" id="displayToggleButton">表示する</button><br />
 (半角の英字と数字の組み合わせ8～20桁)<br />
-<input type="button" value="ログイン" id="submitButton" class="notAllowedSubmitButton" /><br />
+<input type="button" value="ログイン" id="submitButton" class="invalidSubmitButton" /><br />
 初めてご利用の方は<a href="register.jsp">アカウント新規登録</a>をお願いします
 </form>
 <script>
@@ -31,9 +31,9 @@ const submitButton = document.getElementById('submitButton');
 // 有効/無効の切り替えはcssに実装
 form.addEventListener('input', function() {
   if (userIdOrEmail.value === '' || pwd.value === '') {
-    submitButton.className = 'notAllowedSubmitButton';
+    submitButton.className = 'invalidSubmitButton';
   } else {
-    submitButton.className = 'allowedSubmitButton';
+    submitButton.className = 'validSubmitButton';
   }
 });
 

@@ -62,7 +62,7 @@
 <input type="radio" id="sex0" name="sex" value="0" />
   <label for="sex0">回答しない</label><br />
 あとから登録することも可能です。<br />
-<input type="button" value="確認画面へ" id="submitButton" class="notAllowedSubmitButton" />
+<input type="button" value="確認画面へ" id="submitButton" class="invalidSubmitButton" />
 </form>
 <script>
 // １つのEventTargetに対して、同じ関数のイベントリスナーを複数設定する関数
@@ -100,7 +100,7 @@ function watchValue(obj, propertyName, callback) {
 let submit = { flags: 0b00000000000000000000000000100000 };
 
 // 各入力欄のフラグを管理するための定数
-// ※const FLAG = {EMAIL = 1 << 0, CONFIRM_EMAIL = 1 << 1, ...};
+// ※const FLAG = { EMAIL = 1 << 0, CONFIRM_EMAIL = 1 << 1, ... };
 //   のようにFLAGオブジェクトのプロパティとして定義したほうが見やすいが、
 //   constはプロパティの変更を防げない("use strict";を記述すれば(strict mode)、
 //   Object.freeze()によりオブジェクトを凍結できるが今回は使用しない)
@@ -111,7 +111,10 @@ const USER_NAME_FLAG     = 1 << 3;  // 0b 0000 0000 0000 0000 0000 0000 0000 100
 const PWD_FLAG           = 1 << 4;  // 0b 0000 0000 0000 0000 0000 0000 0001 0000
 const DOB_FLAG           = 1 << 5;  // 0b 0000 0000 0000 0000 0000 0000 0010 0000
 
-// ↑JavaScriptでは、ビット演算子を用いると強制的に符号あり32ビット整数に変換される(1 << 0が良い例)
+// -------------------------------------------------------------------------------------------------------------------------------
+// ＜JavaScriptにおけるビット演算について＞
+//
+//   JavaScriptでは、ビット演算子を用いると強制的に符号あり32ビット整数に変換される(1 << 0が良い例)
 //   (ただし、後述の符号なし右シフト(>>>)のみ、符号なし32ビット整数に変換される)
 //   先頭のビット(32ビット目)は数値ではなく符号を表し、0なら正、1なら負となる(「2の補数表現」と呼ばれる)
 //   よって、JavaScriptのビット演算では、10進数の2147483647(2 ** 31 - 1) 〜 -2147483648の範囲の整数を扱うことができる
@@ -126,7 +129,7 @@ const DOB_FLAG           = 1 << 5;  // 0b 0000 0000 0000 0000 0000 0000 0010 000
 //     -----------------------------------------------
 //          0b 0000 0000 0000 0000 0000 0000 0000 0000 // 0
 //       (0b 1 0000 0000 0000 0000 0000 0000 0000 0000 の33ビット目がオーバーフローするため、0とみなせる)
-//       (「ある数[1]に足してゼロになる数[3]は、もとの数のマイナスの数であるとみなせる」= 補数表現)
+//       (「ある数に足してゼロになる数(=[3])は、もとの数(=[1])のマイナスの数であるとみなせる」= 補数表現)
 //
 //   左シフト(<<)の場合、シフト前が正の整数でも、シフト後に32ビット目が1なら負の整数となる
 //   (例)[1]0b 0100 0000 0000 0000 0000 0000 0000 0000 // 1073741824
@@ -147,6 +150,7 @@ const DOB_FLAG           = 1 << 5;  // 0b 0000 0000 0000 0000 0000 0000 0010 000
 //            (0b 0111 1111 1111 1111 1100 0000 0000 0000 // 2147467264(~[4] + 1))
 //          [5]0b 1000 0000 0000 0000 0100 0000 0000 0000 // 2147500032([3] >>> 0)←符号なし32ビット整数のため、2147483647を超える
 //          (↑[4]と[5]はまったく同じに見えるが、[4]は符号あり32ビット整数、[5]は符号なし32ビット整数)
+// -------------------------------------------------------------------------------------------------------------------------------
 
 const submitButton = document.getElementById('submitButton');
 
@@ -157,19 +161,19 @@ const submitButton = document.getElementById('submitButton');
 // flag変更前にチェックが実行されてしまうため、イベントリスナーは使用できない
 //form.addEventListener('input', function() {
   //if (submitFlags === 0b111111) {
-    //submitButton.className = 'allowedSubmitButton';
+    //submitButton.className = 'validSubmitButton';
   //} else {
-    //submitButton.className = 'notAllowedSubmitButton';
+    //submitButton.className = 'invalidSubmitButton';
   //}
 //});
 
 // submit.flagsの変更(セッター実行)時に値をチェックし、
 // 「確認」ボタンの有効化/無効化を行う
 watchValue(submit, 'flags', function() {
-  if (submit.flags === 0b111111) {
-    submitButton.className = 'allowedSubmitButton';
+  if (submit.flags === 0b00000000000000000000000000111111) {
+    submitButton.className = 'validSubmitButton';
   } else {
-    submitButton.className = 'notAllowedSubmitButton';
+    submitButton.className = 'invalidSubmitButton';
   }
 });
 
@@ -235,6 +239,7 @@ function checkUserId() {
     clearTimer();
   } else {
     userIdAttention.innerHTML = '&nbsp;';
+    submit.flags &= ~USER_ID_FLAG;
     clearTimer();
 
     // timerIdを生成し、指定時間(1000 ms)後に非同期処理を呼び出す
@@ -266,17 +271,18 @@ function checkUserIdIsRegisterdAsync() {
 
   // リクエストJSON
   let request = {
-    userId : userId.value
+    state : 'checkUserId',
+    userId: userId.value
   };
 
   // ajaxにより非同期処理を実行
   $.ajax({
-    type    : "GET",       // RegisterServletのdoGETメソッドにより非同期処理を実行
-    url     : "register",  // RegisterServletにリクエストを送信
-    data    : request,
-    async   : true,
-    success : function(data) {
-      switch (data["result"]) {
+    type   : 'GET',       // RegisterServletのdoGETメソッドにより非同期処理を実行
+    url    : 'register',  // RegisterServletにリクエストを送信
+    data   : request,
+    async  : true,
+    success: function(data) {
+      switch (data['result']) {
         case 'error':
           userIdAttention.className = 'attention';
           userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
@@ -299,7 +305,7 @@ function checkUserIdIsRegisterdAsync() {
           submit.flags &= ~USER_ID_FLAG;
       }
     },
-    error : function(XMLHttpRequest, textStatus, errorThrown) {
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
       userIdAttention.className = 'attention';
       userIdAttention.innerHTML = 'エラーが発生しました。<br />恐れ入りますが、入力し直してください。';
       submit.flags &= ~USER_ID_FLAG;
@@ -441,6 +447,8 @@ const form = document.getElementById('form');
 
 // ログインボタン押下時に送信を行う(送信先はformタグに記述)
 submitButton.addEventListener('click', function(){
+  // 送信時にbeforeunloadイベントが発火しないよう事前に破棄する
+  window.removeEventListener('beforeunload',invalidateSession);
   form.requestSubmit();
 });
 
@@ -487,8 +495,8 @@ window.addEventListener('load', function() {
     case 'registerd':
       checkedEmailAttention.innerHTML = email.getAttribute('value') +
           'はすでに登録されています。<br />別のメールアドレスをご利用ください。';
-      email.setAttribute('value', '');
-      confirmEmail.setAttribute('value', '');
+      email.value = '';
+      confirmEmail.value = '';
       checkUserId();
       checkUserName();
       checkDob();
@@ -498,21 +506,54 @@ window.addEventListener('load', function() {
       checkAllTextBox();
       break;
     case 'different':
-      checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。よく確認してください。';
+      checkedEmailAttention.innerHTML = '入力されたメールアドレスが一致していません。<br />よく確認してください。';
       checkAllTextBox();
       break;
     case 'incorrect':
       checkAllTextBox();
       break;
     default:
-      email.setAttribute('value', '');
-      confirmEmail.setAttribute('value', '');
-      userId.setAttribute('value', '');
-      userName.setAttribute('value', '');
-      dob.setAttribute('value', '');
+      email.value = '';
+      confirmEmail.value = '';
+      userId.value = '';
+      userName.value = '';
+      dob.value = '';
       sexList[3].checked = true;
   }
 });
+
+// タブ及びウィンドウが閉じられた際に、いずれかのテキストボックスに
+// 入力が残っている場合はセッションスコープを破棄する
+// (送信時に発火しないよう、送信ボタンクリックイベント内で本イベントリスナーを破棄する)
+function invalidateSession(event) {
+  if (email.value !== '' || confirmEmail.value !== '' ||
+        userId.value !== '' || userName.value !== '' || dob.value !== '') {
+
+    event.preventDefault();
+    event.returnValue = '';
+
+    invalidateSessionAsync();
+  }
+}
+
+window.addEventListener('beforeunload',invalidateSession);
+
+//非同期処理によりセッションスコープを破棄する
+function invalidateSessionAsync() {
+
+  // リクエストJSON
+    let request = {
+      state: 'beforeClose'
+    };
+
+  // ajaxにより非同期処理を実行
+  $.ajax({
+    type : 'GET',       // RegisterServletのdoGETメソッドにより非同期処理を実行
+    url  : 'register',  // RegisterServletにリクエストを送信
+    data : request,
+    async: true
+  });
+}
 </script>
 </body>
 </html>
