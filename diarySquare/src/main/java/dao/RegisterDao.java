@@ -102,8 +102,7 @@ public class RegisterDao extends BaseDao {
      * @return エラーメッセージ(処理成功時、null)
      */
     public String register(RegisterUserBean registerUser) {
-        String errMsg = null;
-
+        
         /** 
          * SQL文：パスワードの暗号化に際し、鍵をバイナリ文字列に戻し、
          *        暗号化されたパスワード(バイナリ文字列)を16進数に変換
@@ -115,7 +114,7 @@ public class RegisterDao extends BaseDao {
         try {
             load();
             
-            // try-with-resources文のため、conn、pstmt、rsは自動で閉じられる
+            // try-with-resources文のため、conn、pstmtは自動で閉じられる
             // (try-catch-finally文の場合は、finally句内でxxx.close()により閉じる必要がある)
             try (Connection conn = open()) {
                 PreparedStatement pstmt = conn.prepareStatement(strSql);
@@ -131,9 +130,9 @@ public class RegisterDao extends BaseDao {
             
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
-            errMsg = e.getMessage();
+            return "faild";
         }
             
-        return errMsg;
+        return "success";
     }
 }

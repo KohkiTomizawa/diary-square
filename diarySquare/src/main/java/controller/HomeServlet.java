@@ -7,20 +7,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import model.LoginLogic;
-import model.bean.LoginUserBean;
-
-@WebServlet("/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/home")
+public class HomeServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doPost(request, response);
+//        doPost(request, response);
     }
 
     /**
@@ -30,22 +26,6 @@ public class LoginServlet extends HttpServlet {
      * @param response  HTTPのレスポンス
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        HttpSession session = request.getSession();
-
-        String userIdOrEmail = request.getParameter("userIdOrEmail");
-        String pwd = request.getParameter("pwd");
-
-        LoginLogic loginLogic = new LoginLogic();
-        LoginUserBean loginUser = null;
-        loginUser = loginLogic.login(userIdOrEmail, pwd);
-
-        if (loginUser != null) {
-            session.setAttribute("loginUser", loginUser);
-            request.getRequestDispatcher("home").forward(request, response);
-        } else {
-            request.getRequestDispatcher("WEB-INF/login_faild.jsp").forward(request, response);
-        }
-        
+//        doGet(request, response);
     }
 }

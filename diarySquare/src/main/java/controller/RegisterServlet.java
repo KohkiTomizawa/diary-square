@@ -145,12 +145,12 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
             
-            String errMsg = null;
+            String result = "";
             
-            errMsg = registerLogic.register(registerUser);
+            result = registerLogic.register(registerUser);
             session.invalidate();
             
-            if (errMsg == null) {
+            if (result.equals("success")) {
                 request.getRequestDispatcher("WEB-INF/register_success.jsp").forward(request, response);
             } else {
                 request.getRequestDispatcher("WEB-INF/register_faild.jsp").forward(request, response);
