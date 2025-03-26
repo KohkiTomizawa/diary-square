@@ -3,32 +3,45 @@ package dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 /**
  * DAOの基底クラス
+ * (定数はコンストラクタにより外部ファイルから読み込んだ値により初期化する)
  */
 public class BaseDao {
 
     /** JDBCドライバ名 */
-    private static final String JDBC_DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
+    private final String JDBC_DRIVER_NAME;
 
     /** DBの接続先URL */
-    private static final String CONNECTION_URL = "jdbc:mysql://localhost/diarySquare";
+    private final String CONNECTION_URL;
 
     /** DBへ接続時のユーザーID */
-    private static final String CONNECTION_USER_ID = "root";
+    private final String CONNECTION_USER_ID;
 
     /** DBへ接続時のパスワード */
-    private static final String CONNECTION_PASSWORD = "1234";
+    private final String CONNECTION_PASSWORD;
     
     /** 
      * AES_CRYPTOを使用した暗号化･復号化時の16バイト(128ビット)鍵(16進数)
      * (SQL文"SELECT HEX(RANDOM_BYTES(16));"により、バイナリ文字列を生成し16進数に変換したもの)
      */
-    private static final String KEY = "45DAB654CF0A27ED065EA047B87C17A1";
+    private final String KEY;
 
     /** DBへの接続 */
     protected Connection conn = null;
+    
+    /** コンストラクタ(外部ファイルから読み込んだ値により定数を初期化する) */
+    public BaseDao() {
+        ResourceBundle rb = ResourceBundle.getBundle("database");
+        
+        JDBC_DRIVER_NAME = rb.getString("JDBC_DRIVER_NAME");
+        CONNECTION_URL = rb.getString("CONNECTION_URL");
+        CONNECTION_USER_ID = rb.getString("CONNECTION_USER_ID");
+        CONNECTION_PASSWORD = rb.getString("CONNECTION_PASSWORD");
+        KEY = rb.getString("KEY");
+    }
     
     /**
      * JDBCドライバを読み込む

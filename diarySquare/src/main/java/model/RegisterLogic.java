@@ -84,15 +84,28 @@ public class RegisterLogic {
      * @return errorMsg エラーメッセージ(ログイン成功の場合、null)
      */
     public String register(RegisterUserBean registerUser) {
+        
+        /**
+         * データベースのDATE型に空文字を入れるとエラーが発生するため、
+         * 事前にnullへ変換しておく
+         */
+        String dob = registerUser.getDob();
+        if ("".equals(dob)) {
+            registerUser.setDob(null);
+        }
+        
+        /**
+         * 現在時刻をアカウント登録日時に設定する
+         */
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         registerUser.setRegistrationDate(sdf.format(date));
         
-        String errMsg = null;
+        String result = "";
         RegisterDao registerDao = new RegisterDao();
 
-        errMsg = registerDao.register(registerUser);
+        result = registerDao.register(registerUser);
         
-        return errMsg;
+        return result;
     }
 }
